@@ -1,20 +1,30 @@
 <script setup>
+import { onMounted, ref } from 'vue'
 
-import { ref } from 'vue'
+const todos = ref([])
 
-const todos = ref([
-  { text: "Placeholder To-do Item", id: crypto.randomUUID(), done:false },
-  { text: "Blah blah blah", id: crypto.randomUUID(), done:false },
-])
+function fetchTodos() {
+  const savedTodoList = JSON.parse(localStorage.getItem("todos"))
+  if (savedTodoList) {
+    todos.value = savedTodoList
+  }
+}
+
+
+
+function saveTodosToLocalStorage() {
+  localStorage.setItem("todos", JSON.stringify(todos.value))
+}
+
 
 const inputText = ref(null)
 
 // Adding
 function addTodo() {
-  todos.value.push({ text: inputText.value, id: crypto.randomUUID(), done:false })
+  todos.value.push({ text: inputText.value, id: crypto.randomUUID(), done: false })
   inputText.value = ""
+  saveTodosToLocalStorage()
 }
-
 // Editing
 const editText = ref(null)
 const editing = ref(null)
@@ -26,12 +36,31 @@ function saveEdit(todo) {
   todo.text = editText.value
   editing.value = null
   editText.value = null
+  saveTodosToLocalStorage()
 }
-
 // Removing
 function removeTodo(todo) {
   todos.value = todos.value.filter((i) => i != todo)
+  saveTodosToLocalStorage()
 }
+// Other way of writing same function
+const removeTodo2 = (todo) => {
+  todos.value = todos.value.filter((i) => i != todo)
+}
+
+onMounted(() => {
+  fetchTodos();
+})
+
+
+// json-server mounting
+// onMounted(() => {
+//   fetch("http://localhost:3000/todos")
+//     .then((res) => res.json())
+//     .then((data) => todos.value = data)
+//     .catch((err) => console.log(err.message))
+// })
+
 
 </script>
 
@@ -39,7 +68,7 @@ function removeTodo(todo) {
 <template>
   <div class="wrapper">
     <div class="list">
-      <div class="todo" v-for="todo in todos" :key="todo.id" :class="todo.done ? 'completed':''">
+      <div class="todo" v-for="todo in todos" :key="todo.id" :class="todo.done ? 'completed' : ''">
         <div v-if="editing != todo">{{ todo.text }}</div>
         <div v-else><input type="text" v-model="editText" class="editField" /></div>
         <div>
@@ -49,7 +78,7 @@ function removeTodo(todo) {
           <!-- Removing -->
           <button @click="removeTodo(todo)">X</button>
           <!-- Completing -->
-          <button @click="todo.done = !todo.done">C</button>
+          <button @click="todo.done = !todo.done;  saveTodosToLocalStorage()">C</button>
         </div>
       </div>
     </div>
@@ -164,8 +193,8 @@ body {
   transition: 0.5s;
 }
 
-.completed{
-  background-color:lightyellow;
-  text-decoration:line-through;
+.completed {
+  background-color: lightyellow;
+  text-decoration: line-through;
 }
 </style>
