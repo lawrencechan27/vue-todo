@@ -1,9 +1,9 @@
 {
     "todos": [
 
-        { "text": "Placeholder To-do Item", "id": "crypto.randomUUID()", "done":false },
-        { "text": "Blah blah blah", "id": "crypto.randomUUID()", "done":false },
-        { "text": "Third placeholder item", "id": "crypto.randomUUID()", "done":false }
+        { "text": "Placeholder 1", "id": "crypto.randomUUID()", "done":false },
+        { "text": "Placeholder 2", "id": "crypto.randomUUID()", "done":false },
+        { "text": "Placeholder 3", "id": "crypto.randomUUID()", "done":false }
 
     ]
 }
