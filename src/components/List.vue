@@ -1,35 +1,10 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 
 const props = defineProps({
     currentList: String,
     todos: Array,
 })
-
-// const todos = ref(todos)
-
-// function fetchTodos() {
-//     const savedTodoList = JSON.parse(localStorage.getItem("todos"))
-//     if (savedTodoList) {
-//         todos.value = savedTodoList
-//     }
-// }
-
-// function saveTodosToLocalStorage() {
-//     localStorage.setItem("todos", JSON.stringify(todos.value))
-// }
-
-// onMounted(() => {
-//     fetchTodos();
-// })
-
-// json-server mounting
-// onMounted(() => {
-//   fetch("http://localhost:3000/todos")
-//     .then((res) => res.json())
-//     .then((data) => todos.value = data)
-//     .catch((err) => console.log(err.message))
-// })
 
 const inputText = ref(null)
 
@@ -40,18 +15,6 @@ function editTodo(todo) {
     editText.value = todo.text
     editing.value = todo
 }
-function saveEdit(todo) {
-    todo.text = editText.value
-    editing.value = null
-    editText.value = null
-    //saveTodosToLocalStorage()
-}
-// Removing
-function removeTodo(todo) {
-    todos.value = todos.value.filter((i) => i != todo)
-    //saveTodosToLocalStorage()
-}
-
 </script>
 
 
@@ -67,7 +30,8 @@ function removeTodo(todo) {
                     <div>
                         <!-- Editing -->
                         <button v-if="editing != todo" @click="editTodo(todo)">E</button>
-                        <button v-else @click="saveEdit(todo)" class="saveBtn">S</button>
+                        <button v-else @click="$emit('saveEdit', todo, editText); editing = false; editText = null"
+                            class="saveBtn">S</button>
                         <!-- Removing -->
                         <button @click="$emit('removeTodo', todo)">X</button>
                         <!-- Completing -->
@@ -78,7 +42,8 @@ function removeTodo(todo) {
         </div>
         <!-- Adding -->
         <div class="input">
-            <input type="text" v-model="inputText" /><button @click="$emit('addTodo', inputText); inputText = ''">Add</button>
+            <input type="text" v-model="inputText" /><button
+                @click="$emit('addTodo', inputText); inputText = ''">Add</button>
         </div>
     </div>
 </template>
