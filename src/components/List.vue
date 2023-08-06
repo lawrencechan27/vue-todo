@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 
 const props = defineProps({
-    currentList: String,
+    currentList: Object,
     todos: Array,
 })
 
@@ -20,11 +20,12 @@ function editTodo(todo) {
 
 <template>
     <div class="wrapper">
-        <h1>{{ currentList }}</h1>
+        <!-- v-if to only load h1 tag once currentList has loaded as an object -->
+        <h1 v-if="currentList">{{ props.currentList.name }}</h1>
         <div class="list">
             <div v-for="todo in todos" :key="todo.id">
                 <!-- Only show todo items from currentList -->
-                <div v-if="todo.list === props.currentList" class="todo" :class="todo.done ? 'completed' : ''">
+                <div v-if="todo.list === props.currentList.id" class="todo" :class="todo.done ? 'completed' : ''">
                     <div v-if="editing != todo">{{ todo.text }}</div>
                     <div v-else><input type="text" v-model="editText" class="editField" /></div>
                     <div>
