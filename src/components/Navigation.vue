@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import Modal from './Modal.vue'
 
 // To get rid of random console error message
 defineOptions({
@@ -30,11 +31,27 @@ const deleteModalIsOpen = ref(false)
 const renameModalIsOpen = ref(false)
 
 
+// Test Modals
+const modalOneActive = ref(false)
+const modalTwoActive = ref(false)
+
 </script>
 
 
 
 <template>
+    <!-- Test Modals -->
+    <button @click="modalOneActive=true">Open Test Modal 1</button>
+    <button @click="modalTwoActive=true">Open Test Modal 2</button>
+
+    <Modal :modalActive="modalOneActive" @closeModal="modalOneActive=false">
+        <h1>This is modal one</h1>
+    </Modal>
+
+    <Modal :modalActive="modalTwoActive" @closeModal="modalTwoActive=false">
+        <h2>This is modal 2</h2>
+    </Modal>
+
     <!-- New list popup -->
     <div v-if="createModalIsOpen" class="modal-bg">
         <div class="modal">
@@ -48,7 +65,7 @@ const renameModalIsOpen = ref(false)
     <div v-if="renameModalIsOpen" class="modal-bg">
         <div class="modal">
             <input v-model="renameListInput" />
-            <button @click="$emit('renameList', renameListInput);renameModalIsOpen = false">Rename</button>
+            <button @click="$emit('renameList', renameListInput); renameModalIsOpen = false">Rename</button>
             <button @click="renameModalIsOpen = false">Cancel</button>
         </div>
     </div>

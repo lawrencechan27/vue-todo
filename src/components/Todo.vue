@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch, watchEffect } from 'vue';
 import Navigation from './Navigation.vue'
 import List from './List.vue'
 
@@ -7,7 +7,6 @@ import List from './List.vue'
 const lists = ref([])
 const currentList = ref()
 const todos = ref([])
-
 
 // Check if todos exist in local storage, and get them
 function fetchTodos() {
@@ -25,6 +24,8 @@ function fetchTodos() {
     }
 }
 
+// Watch for any changes to lists, currentList, todos and then run save function
+// watch( [lists, currentList, todos ], () => { saveToLocalStorage() })
 function saveToLocalStorage() {
     localStorage.setItem("lists", JSON.stringify(lists.value))
     localStorage.setItem("currentList", JSON.stringify(currentList.value))
@@ -33,8 +34,6 @@ function saveToLocalStorage() {
 
 onMounted(() => {
     fetchTodos();
-    // For debugging
-    console.table(lists.value)
 })
 
 // json-server mounting
@@ -49,7 +48,7 @@ onMounted(() => {
 // Functions emitted from Navigation component
 const changeList = (list) => {
     currentList.value = list
-    saveToLocalStorage()
+    // saveToLocalStorage()
 }
 const addNewList = (newListName) => {
     // Check if list name exists
@@ -100,16 +99,11 @@ const saveEdit = (todo, editText) => {
     saveToLocalStorage()
 }
 
-const testingFunc = () => {
-
-}
-
 </script>
 
 
 
 <template>
-    <button @click="testingFunc" style="position:absolute;bottom:0;left:0;">TESTING</button>
     <Navigation :lists="lists" :currentList="currentList" @change-list="changeList" @add-new-list="addNewList"
         @rename-list="renameList" @delete-list="deleteList" />
     <List :currentList="currentList" :todos="todos" @add-todo="addTodo" @remove-todo="removeTodo" @save-edit="saveEdit" />
