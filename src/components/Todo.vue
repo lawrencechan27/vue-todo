@@ -5,7 +5,7 @@ import List from './List.vue'
 
 // Define vars
 const lists = ref([])
-const currentList = ref()
+const currentList = ref(null)
 const todos = ref([])
 
 // Check if todos exist in local storage, and get them
@@ -13,28 +13,40 @@ function fetchTodos() {
     const savedLists = JSON.parse(localStorage.getItem("lists"))
     const savedCurrentList = JSON.parse(localStorage.getItem("currentList"))
     const savedTodos = JSON.parse(localStorage.getItem("todos"))
-    if (savedLists) {
+    // If savedCurrentList exists, fill variables with JSON data
+    if (savedCurrentList) {
         lists.value = savedLists
         currentList.value = savedCurrentList
         todos.value = savedTodos
     } else {
-        // If no local storage exists, start with a default "Tasks" list
+        // Otherwise add default list
         lists.value = [{ name: "Tasks", id: crypto.randomUUID() }]
         currentList.value = lists.value[0]
     }
 }
 
-// Watch for any changes to lists, currentList, todos and then run save function
-// watch( [lists, currentList, todos ], () => { saveToLocalStorage() })
+onMounted(() => {
+    fetchTodos();
+})
+
+
+// Watch for any changes to lists, currentList or todos, then run save function if change is detected
+watch([lists, currentList, todos], () => {
+    saveToLocalStorage()
+}, { deep: true }) // deep: true allows watcher to reach props
+
 function saveToLocalStorage() {
     localStorage.setItem("lists", JSON.stringify(lists.value))
     localStorage.setItem("currentList", JSON.stringify(currentList.value))
     localStorage.setItem("todos", JSON.stringify(todos.value))
 }
 
-onMounted(() => {
-    fetchTodos();
-})
+// watchEffect, alternativet o watch, but not working
+// watchEffect(async () => {
+//     localStorage.setItem("lists", JSON.stringify(lists.value))
+//     localStorage.setItem("currentList", JSON.stringify(currentList.value))
+//     localStorage.setItem("todos", JSON.stringify(todos.value))
+// })
 
 // json-server mounting
 
@@ -48,7 +60,6 @@ onMounted(() => {
 // Functions emitted from Navigation component
 const changeList = (list) => {
     currentList.value = list
-    saveToLocalStorage()
 }
 const addNewList = (newListName) => {
     // Check if list name exists
@@ -58,7 +69,6 @@ const addNewList = (newListName) => {
         lists.value.push({ name: newListName, id: crypto.randomUUID() })
         // Change current list to new list
         currentList.value = lists.value[lists.value.length - 1]
-        saveToLocalStorage()
     }
 }
 const renameList = (renameListInput) => {
@@ -67,7 +77,6 @@ const renameList = (renameListInput) => {
         alert("List with that name already exists")
     } else {
         currentList.value.name = renameListInput
-        saveToLocalStorage()
     }
 }
 const deleteList = () => {
@@ -80,7 +89,6 @@ const deleteList = () => {
         )
         // Set current list to whatever is first in array.. AFTER removing todos
         currentList.value = lists.value[0]
-        saveToLocalStorage()
     } else {
         alert("Can't delete the only list")
     }
@@ -88,15 +96,12 @@ const deleteList = () => {
 // Functions emitted from List component
 const addTodo = (inputText) => {
     todos.value.push({ text: inputText, id: crypto.randomUUID(), done: false, list: currentList.value.id })
-    saveToLocalStorage()
 }
 const removeTodo = (todo) => {
     todos.value = todos.value.filter((i) => i != todo)
-    saveToLocalStorage()
 }
 const saveEdit = (todo, editText) => {
     todo.text = editText
-    saveToLocalStorage()
 }
 
 </script>
