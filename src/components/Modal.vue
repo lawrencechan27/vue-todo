@@ -1,23 +1,31 @@
 <script setup>
-const props = defineProps({
-    modalActive: Boolean
+defineProps({
+    modelValue: {
+        type: Boolean,
+        // required property to log error when v-model isn't defined on <Modal>
+        required: true
+    }
 })
+defineEmits([
+    'update:modelValue'
+])
 </script>
 
 <template>
     <transition name="background">
-        <div v-show="modalActive" class="background">
+        <div v-if="modelValue" class="background" @click="$emit('update:modelValue', false)">
             <transition name="modal">
-            <div v-if="modalActive" class="modal">
-                <button class="close-button" @click="$emit('closeModal')">X</button>
-                <slot />
-            </div>
+                <!-- @click.stop to prevent the click going through Modal and triggering background click -->
+                <div v-if="modelValue" class="modal" @click.stop>
+                    <button class="close-button" @click="$emit('update:modelValue', false)">✖</button>
+                    <slot />
+                </div>
             </transition>
         </div>
     </transition>
 </template>
 
-<style>
+<style scoped>
 .background {
     z-index: 1;
     width: 100vw;
@@ -28,15 +36,17 @@ const props = defineProps({
     left: 0;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: start;
 }
 
 .modal {
     z-index: 2;
     background: white;
-    padding: 20px;
+    padding: 40px;
     border-radius: 20px;
     position: relative;
+    text-align:center;
+    margin-top:20px;
 }
 
 .close-button {
@@ -44,12 +54,21 @@ const props = defineProps({
     position: absolute;
     top: 0;
     right: 0;
+    width:40px;
+    height:40px;
+    border-radius:20px;
+    background:white;
+    color:lightgrey;
+    border:none;
+    cursor:pointer;
+    font-size:1.5rem;
 }
 
 .background-enter-active,
 .background-leave-active {
-    transition: all 0.5s ease;
+    transition: all 0.3s ease;
 }
+
 .background-enter-from,
 .background-leave-to {
     opacity: 0;
@@ -57,8 +76,9 @@ const props = defineProps({
 
 .modal-enter-active,
 .modal-leave-active {
-    transition: all 0.5s cubic-bezier(.47,1.64,.41,.8);
+    transition: all 0.5s cubic-bezier(.47, 1.64, .41, .8);
 }
+
 .modal-enter-from,
 .modal-leave-to {
     opacity: 0;

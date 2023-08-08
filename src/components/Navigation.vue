@@ -13,91 +13,66 @@ const props = defineProps({
     currentList: Object,
 })
 
-const menuIsOpen = ref(false)
+const changeModalActive = ref(false)
 
-const createModalIsOpen = ref(false)
+const createModalActive = ref(false)
 const newListName = ref(null)
 
 // Function to create a new list
 const createNewList = () => {
-    menuIsOpen.value = false;
-    createModalIsOpen.value = true;
+    changeModalActive.value = false;
+    createModalActive.value = true;
 }
 
 // Delete list modal toggle
-const deleteModalIsOpen = ref(false)
+const deleteModalActive = ref(false)
 
 // Rename list modal toggle
-const renameModalIsOpen = ref(false)
-
-
-// Test Modals
-const modalOneActive = ref(false)
-const modalTwoActive = ref(false)
-
+const renameModalActive = ref(false)
 </script>
 
 
 
 <template>
-    <!-- Test Modals -->
-    <button @click="modalOneActive=true">Open Test Modal 1</button>
-    <button @click="modalTwoActive=true">Open Test Modal 2</button>
-
-    <Modal :modalActive="modalOneActive" @closeModal="modalOneActive=false">
-        <h1>This is modal one</h1>
+    <!-- Change list modal -->
+    <Modal v-model="changeModalActive">
+        <div class="change-modal">
+            <button v-for="list in lists" @click="$emit('changeList', list); changeModalActive = false">
+                {{ list.name }}
+            </button>
+            <button @click="createNewList" class="dropdown-button"><strong>Create New List</strong></button>
+        </div>
     </Modal>
 
-    <Modal :modalActive="modalTwoActive" @closeModal="modalTwoActive=false">
-        <h2>This is modal 2</h2>
+    <!-- Create list modal -->
+    <Modal v-model="createModalActive">
+        <input v-model="newListName" /><button
+            @click="$emit('addNewList', newListName); createModalActive = false; newListName = null">Add
+            List</button>
     </Modal>
 
-    <!-- New list popup -->
-    <div v-if="createModalIsOpen" class="modal-bg">
-        <div class="modal">
-            <input v-model="newListName" /><button
-                @click="$emit('addNewList', newListName); createModalIsOpen = false; newListName = null">Add
-                List</button><button @click="createModalIsOpen = false; newListName = null">Cancel</button>
-        </div>
-    </div>
-
-    <!-- Rename modal modal -->
-    <div v-if="renameModalIsOpen" class="modal-bg">
-        <div class="modal">
-            <input v-model="renameListInput" />
-            <button @click="$emit('renameList', renameListInput); renameModalIsOpen = false">Rename</button>
-            <button @click="renameModalIsOpen = false">Cancel</button>
-        </div>
-    </div>
+    <!-- Rename modal -->
+    <Modal v-model="renameModalActive">
+        <input v-model="renameListInput" />
+        <button @click="$emit('renameList', renameListInput); renameModalActive = false">Rename</button>
+    </Modal>
 
     <!-- Delete confirmation modal -->
-    <div v-if="deleteModalIsOpen" class="modal-bg">
-        <div class="modal">
-            Are you sure? <button @click="$emit('deleteList'); deleteModalIsOpen = false">Yes</button><button
-                @click="deleteModalIsOpen = false">No</button>
-        </div>
-    </div>
+    <Modal v-model="deleteModalActive">
+        <p>Delete {{ currentList.name }}?</p>
+        <button @click="$emit('deleteList'); deleteModalActive = false">Confirm</button>
+    </Modal>
 
     <div class="wrapper">
         <div>
             <!-- v-if to only load button tag once currentList has loaded as an object -->
-            <div v-if="currentList" @click="menuIsOpen = !menuIsOpen" class="open-menu-btn">
+            <div v-if="currentList" @click="changeModalActive = !changeModalActive" class="open-menu-btn">
                 <img src="../assets/menu.svg" class="menu-icon">{{ props.currentList.name }}
             </div>
-            <!-- Dropdown Menu to Change Lists -->
-            <transition appear name="dropdown">
-                <div v-if="menuIsOpen" class="dropdown">
-                    <button v-for="list in lists" class="dropdown-button"
-                        @click="$emit('changeList', list); menuIsOpen = false">
-                        {{ list.name }}
-                    </button>
-                    <button @click="createNewList" class="dropdown-button"><strong>Create New List</strong></button>
-                </div>
-            </transition>
         </div>
         <div>
-            <button @click="renameModalIsOpen = true; renameListInput = currentList.name">Rename</button>
-            <button @click="deleteModalIsOpen = true">Delete</button>
+            <button @click="renameModalActive = true; renameListInput = currentList.name" class="top-buttons">Rename</button>
+            <button @click="deleteModalActive = true" class="top-buttons">Delete</button>
         </div>
     </div>
 </template>
@@ -109,26 +84,8 @@ const modalTwoActive = ref(false)
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.modal-bg {
-    z-index: 1;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
-    position: absolute;
-    top: 0;
-    left: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal {
-    z-index: 2;
-    background: white;
-    padding: 20px;
-    border-radius: 20px;
+    margin-top: 20px;
+    margin-bottom:10px;
 }
 
 .open-menu-btn {
@@ -140,6 +97,15 @@ const modalTwoActive = ref(false)
     gap: 10px;
 }
 
+button {
+    background:lightblue;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 20px;
+}
+
 .menu-icon {
     filter: invert(100%) sepia(0%) saturate(7479%) hue-rotate(70deg) brightness(99%) contrast(107%);
     width: 1.5rem;
@@ -147,27 +113,8 @@ const modalTwoActive = ref(false)
     color: white;
 }
 
-.dropdown {
-    z-index: 1;
-    position: absolute;
-}
-
-.dropdown-enter-active,
-.dropdown-leave-active {
-    transition: all 0.5s ease;
-}
-
-.dropdown-enter-from,
-.dropdown-leave-to {
-    opacity: 0;
-    /* transform: scaleY(0.8); */
-    /* transform-origin: top; */
-}
-
-.dropdown-button {
-    width: 100%;
-    font-size: 1rem;
-    padding: 5px;
-    text-align: left;
+.change-modal {
+    display: grid;
+    gap:10px;
 }
 </style>

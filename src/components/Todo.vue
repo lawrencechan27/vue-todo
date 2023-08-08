@@ -48,7 +48,7 @@ onMounted(() => {
 // Functions emitted from Navigation component
 const changeList = (list) => {
     currentList.value = list
-    // saveToLocalStorage()
+    saveToLocalStorage()
 }
 const addNewList = (newListName) => {
     // Check if list name exists
